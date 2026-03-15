@@ -1,15 +1,34 @@
+# =========================
+# STEP 1: IMPORT REQUIRED LIBRARIES
+# Streamlit is used to build the web app interface
+# Pandas is used for data handling and tables
+# Matplotlib is used for charts and plots
+# train_and_evaluate() is imported to train the model and get performance results
+# =========================
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 from model.train_model import train_and_evaluate
 
+
+# =========================
+# STEP 2: CONFIGURE PAGE SETTINGS
+# This sets the page title, page layout,
+# and keeps the sidebar expanded by default
+# =========================
 st.set_page_config(
     page_title="Model Performance",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# ---------------- PAGE STYLING ----------------
+
+# =========================
+# STEP 3: APPLY CUSTOM PAGE STYLING
+# This CSS section is used to design the page
+# with custom background, sidebar, hero section,
+# metric cards, chart boxes, table boxes, and buttons
+# =========================
 st.markdown("""
 <style>
 html, body, [data-testid="stAppViewContainer"], .main {
@@ -301,14 +320,35 @@ section[data-testid="stSidebar"] * {
 </style>
 """, unsafe_allow_html=True)
 
-# ---------------- LOAD RESULTS ----------------
+
+# =========================
+# STEP 4: LOAD MODEL RESULTS
+# Here we call the train_and_evaluate() function
+# to train the model and return evaluation results
+# st.cache_resource is used so training is not repeated
+# every time the page reloads
+# =========================
 @st.cache_resource
 def get_results():
     return train_and_evaluate()
 
+
+# =========================
+# STEP 5: TRAIN MODEL AND FETCH OUTPUTS
+# A spinner is shown while the model is training
+# and performance results are being loaded
+# =========================
 with st.spinner("Training model and loading performance results..."):
     results = get_results()
 
+
+# =========================
+# STEP 6: EXTRACT ALL RETURNED RESULTS
+# We store all important outputs separately
+# such as actual labels, predicted labels,
+# accuracy, precision, recall, F1-score,
+# confusion matrix, and classification report
+# =========================
 y_test = results["y_test"]
 y_pred = results["y_pred"]
 accuracy = results["accuracy"]
@@ -318,7 +358,12 @@ f1 = results["f1"]
 cm = results["confusion_matrix"]
 report = results["classification_report"]
 
-# ---------------- HERO ----------------
+
+# =========================
+# STEP 7: CREATE HERO SECTION
+# This is the top section of the page
+# that explains what this page shows
+# =========================
 st.markdown("""
 <div class="page-hero">
     <div class="hero-badge">📊 Performance Evaluation</div>
@@ -331,7 +376,12 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ---------------- METRICS ----------------
+
+# =========================
+# STEP 8: DISPLAY PERFORMANCE METRICS
+# This section shows the main evaluation metrics:
+# Accuracy, Precision, Recall, and F1-Score
+# =========================
 st.markdown('<div class="section-title">Performance Summary</div>', unsafe_allow_html=True)
 st.markdown('<div class="section-subtitle">Core evaluation metrics that describe how effectively the model makes predictions.</div>', unsafe_allow_html=True)
 
@@ -373,9 +423,20 @@ with m4:
     </div>
     """, unsafe_allow_html=True)
 
-# ---------------- MATRIX + REPORT ----------------
+
+# =========================
+# STEP 9: CREATE TWO COLUMNS
+# Left side shows confusion matrix
+# Right side shows classification report
+# =========================
 mid1, mid2 = st.columns([1.05, 1])
 
+
+# =========================
+# STEP 10: DISPLAY CONFUSION MATRIX
+# This helps us compare actual values
+# with predicted values visually
+# =========================
 with mid1:
     st.markdown('<div class="section-title">Confusion Matrix</div>', unsafe_allow_html=True)
     st.markdown('<div class="section-subtitle">A visual comparison of actual and predicted classes.</div>', unsafe_allow_html=True)
@@ -403,6 +464,12 @@ with mid1:
     st.pyplot(fig)
     st.markdown('</div>', unsafe_allow_html=True)
 
+
+# =========================
+# STEP 11: DISPLAY CLASSIFICATION REPORT
+# This table shows class-wise performance
+# like precision, recall, F1-score, and support
+# =========================
 with mid2:
     st.markdown('<div class="section-title">Classification Report</div>', unsafe_allow_html=True)
     st.markdown('<div class="section-subtitle">Detailed class-wise evaluation scores for the trained model.</div>', unsafe_allow_html=True)
@@ -413,7 +480,13 @@ with mid2:
     st.dataframe(report_df, use_container_width=True, height=340)
     st.markdown('</div>', unsafe_allow_html=True)
 
-# ---------------- SAMPLE PREDICTIONS ----------------
+
+# =========================
+# STEP 12: SHOW SAMPLE PREDICTIONS
+# This section displays a few actual values
+# and predicted values from the test data
+# so that users can directly compare them
+# =========================
 st.markdown('<div class="section-title">Sample Predictions</div>', unsafe_allow_html=True)
 st.markdown('<div class="section-subtitle">A quick preview of actual and predicted outcomes from the test set.</div>', unsafe_allow_html=True)
 
@@ -429,7 +502,12 @@ st.markdown('<div class="table-box">', unsafe_allow_html=True)
 st.dataframe(sample_df, use_container_width=True, height=240)
 st.markdown('</div>', unsafe_allow_html=True)
 
-# ---------------- INSIGHT ----------------
+
+# =========================
+# STEP 13: DISPLAY FINAL INSIGHT
+# This section explains that good performance
+# does not always mean the model is fair
+# =========================
 st.markdown("""
 <div class="insight-box">
 <b>Insight:</b> The model demonstrates good predictive capability through accuracy, precision, recall, and F1-score.
@@ -438,7 +516,12 @@ outcomes across different gender groups. That is why the next stage focuses on f
 </div>
 """, unsafe_allow_html=True)
 
-# ---------------- NEXT SECTION ----------------
+
+# =========================
+# STEP 14: SHOW NEXT PAGE MESSAGE
+# This section tells the user to continue
+# to the fairness analysis page
+# =========================
 st.markdown("""
 <div class="next-box">
     <div class="next-title">Ready for Fairness Analysis?</div>
@@ -449,7 +532,12 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ---------------- NAVIGATION ----------------
+
+# =========================
+# STEP 15: ADD NAVIGATION BUTTONS
+# These buttons help the user
+# move to previous or next page
+# =========================
 st.markdown("<br>", unsafe_allow_html=True)
 
 nav1, nav2, nav3 = st.columns([1.4, 2, 1.4])

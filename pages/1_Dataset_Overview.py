@@ -1,14 +1,32 @@
+# =========================
+# STEP 1: IMPORT REQUIRED LIBRARIES
+# We import Streamlit for web app design,
+# Pandas for handling dataset,
+# and Matplotlib for charts
+# =========================
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 
+
+# =========================
+# STEP 2: CONFIGURE PAGE SETTINGS
+# This sets the page title,
+# wide layout, and expanded sidebar
+# =========================
 st.set_page_config(
     page_title="Dataset Overview",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# ---------------- PAGE STYLING ----------------
+
+# =========================
+# STEP 3: APPLY CUSTOM PAGE STYLING
+# This section contains CSS for
+# background, sidebar, hero section,
+# cards, tables, charts, and buttons
+# =========================
 st.markdown("""
 <style>
 html, body, [data-testid="stAppViewContainer"], .main {
@@ -295,13 +313,25 @@ section[data-testid="stSidebar"] * {
 </style>
 """, unsafe_allow_html=True)
 
-# ---------------- DATA LOADING ----------------
+
+# =========================
+# STEP 4: DEFINE DATASET COLUMN NAMES
+# These are the column names of
+# the Adult Income dataset
+# =========================
 columns = [
     "age", "workclass", "fnlwgt", "education", "education_num", "marital_status",
     "occupation", "relationship", "race", "gender", "capital_gain", "capital_loss",
     "hours_per_week", "native_country", "income"
 ]
 
+
+# =========================
+# STEP 5: LOAD DATASET
+# This function reads the dataset
+# file and stores it in a DataFrame
+# Cache is used so loading becomes faster
+# =========================
 @st.cache_data
 def load_data():
     df = pd.read_csv("data/adult.data", names=columns, sep=",", skipinitialspace=True)
@@ -309,7 +339,12 @@ def load_data():
 
 df = load_data()
 
-# ---------------- HEADER ----------------
+
+# =========================
+# STEP 6: CREATE PAGE HEADER / HERO SECTION
+# This is the top introduction section
+# for the Dataset Overview page
+# =========================
 st.markdown("""
 <div class="page-hero">
     <div class="hero-badge">📁 Dataset Exploration</div>
@@ -322,7 +357,13 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ---------------- DATASET INFO ----------------
+
+# =========================
+# STEP 7: SHOW DATASET INFORMATION
+# This section explains what the dataset is,
+# what is the target variable,
+# and which sensitive attribute is used
+# =========================
 st.markdown('<div class="section-title">Dataset Information</div>', unsafe_allow_html=True)
 st.markdown('<div class="section-subtitle">A quick understanding of what the dataset contains and why it matters in this project.</div>', unsafe_allow_html=True)
 
@@ -334,6 +375,13 @@ is treated as the sensitive attribute for fairness and bias analysis.
 </div>
 """, unsafe_allow_html=True)
 
+
+# =========================
+# STEP 8: DISPLAY KEY DATASET METRICS
+# These cards show total rows,
+# columns, target variable,
+# and sensitive attribute
+# =========================
 c1, c2, c3, c4 = st.columns(4)
 
 with c1:
@@ -368,7 +416,12 @@ with c4:
     </div>
     """, unsafe_allow_html=True)
 
-# ---------------- DATA PREVIEW ----------------
+
+# =========================
+# STEP 9: SHOW DATASET PREVIEW
+# This section displays the first
+# 10 rows of the dataset
+# =========================
 st.markdown('<div class="section-title">Dataset Preview</div>', unsafe_allow_html=True)
 st.markdown('<div class="section-subtitle">A sample view of the first few records from the dataset.</div>', unsafe_allow_html=True)
 
@@ -376,12 +429,23 @@ st.markdown('<div class="table-box">', unsafe_allow_html=True)
 st.dataframe(df.head(10), use_container_width=True, height=360)
 st.markdown('</div>', unsafe_allow_html=True)
 
-# ---------------- CHARTS ----------------
+
+# =========================
+# STEP 10: CREATE DATASET VISUALIZATIONS
+# This section shows charts for
+# gender distribution and income distribution
+# =========================
 st.markdown('<div class="section-title">Dataset Visualizations</div>', unsafe_allow_html=True)
 st.markdown('<div class="section-subtitle">Visual summaries to understand the distribution of gender and income categories.</div>', unsafe_allow_html=True)
 
 col1, col2 = st.columns(2)
 
+
+# =========================
+# STEP 11: GENDER DISTRIBUTION CHART
+# This pie chart shows how many
+# male and female records exist
+# =========================
 with col1:
     st.markdown('<div class="chart-box">', unsafe_allow_html=True)
     st.markdown('<div class="chart-heading">Gender Distribution</div>', unsafe_allow_html=True)
@@ -409,6 +473,12 @@ with col1:
     """, unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
+
+# =========================
+# STEP 12: INCOME DISTRIBUTION CHART
+# This bar chart shows how records
+# are distributed across income classes
+# =========================
 with col2:
     st.markdown('<div class="chart-box">', unsafe_allow_html=True)
     st.markdown('<div class="chart-heading">Income Distribution</div>', unsafe_allow_html=True)
@@ -444,7 +514,12 @@ with col2:
     """, unsafe_allow_html=True)
     st.markdown('</div>', unsafe_allow_html=True)
 
-# ---------------- KEY DETAILS ----------------
+
+# =========================
+# STEP 13: SHOW KEY INSIGHTS
+# This section gives final important
+# observations from the dataset
+# =========================
 st.markdown('<div class="section-title">Key Insights</div>', unsafe_allow_html=True)
 st.markdown('<div class="section-subtitle">Important takeaways from the dataset before moving to the next stage.</div>', unsafe_allow_html=True)
 
@@ -466,7 +541,12 @@ with k2:
     </div>
     """, unsafe_allow_html=True)
 
-# ---------------- NAVIGATION ----------------
+
+# =========================
+# STEP 14: ADD NAVIGATION BUTTONS
+# These buttons allow the user
+# to move to home page or next page
+# =========================
 st.markdown("<br>", unsafe_allow_html=True)
 
 nav1, nav2, nav3 = st.columns([1.4, 2, 1.4])

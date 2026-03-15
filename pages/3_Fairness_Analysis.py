@@ -1,15 +1,36 @@
+# =========================
+# STEP 1: IMPORT REQUIRED LIBRARIES
+# Streamlit is used to create the web app interface
+# Pandas is used to create and show tables
+# Matplotlib is used for charts and visualizations
+# train_and_evaluate() is used to get model predictions
+# calculate_fairness() is used to compute fairness metrics
+# =========================
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 from model.train_model import train_and_evaluate
 from fairness.fairness_metrics import calculate_fairness
 
+
+# =========================
+# STEP 2: CONFIGURE THE PAGE
+# This sets the page title, wide layout,
+# and keeps the sidebar expanded by default
+# =========================
 st.set_page_config(
     page_title="Fairness Analysis",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
+
+# =========================
+# STEP 3: APPLY CUSTOM PAGE STYLING
+# This CSS block is used to design the full page,
+# including background, sidebar, hero section,
+# metric cards, chart boxes, tables, and buttons
+# =========================
 st.markdown("""
 <style>
 html, body, [data-testid="stAppViewContainer"], .main {
@@ -290,6 +311,15 @@ section[data-testid="stSidebar"] * {
 </style>
 """, unsafe_allow_html=True)
 
+
+# =========================
+# STEP 4: DEFINE FUNCTION TO GET FAIRNESS RESULTS
+# This function first trains the model,
+# then gets actual labels, predictions,
+# and sensitive attribute values.
+# After that, fairness metrics are calculated.
+# cache_resource is used so it does not run again and again
+# =========================
 @st.cache_resource
 def get_fairness_results():
     results = train_and_evaluate()
@@ -299,9 +329,21 @@ def get_fairness_results():
     fairness_results = calculate_fairness(y_test, y_pred, sensitive_test)
     return fairness_results
 
+
+# =========================
+# STEP 5: CALCULATE FAIRNESS METRICS
+# A loading spinner is shown while
+# fairness metrics are being calculated
+# =========================
 with st.spinner("Calculating fairness metrics and loading analysis..."):
     fairness_results = get_fairness_results()
 
+
+# =========================
+# STEP 6: EXTRACT INDIVIDUAL FAIRNESS VALUES
+# Here we separately store all fairness-related results
+# so they can be displayed in cards, tables, and charts
+# =========================
 male_rate = fairness_results["male_selection_rate"]
 female_rate = fairness_results["female_selection_rate"]
 disparate_impact = fairness_results["disparate_impact"]
@@ -314,7 +356,12 @@ eod = fairness_results["equal_opportunity_difference"]
 
 selection_gap = abs(male_rate - female_rate)
 
-# ---------------- HERO ----------------
+
+# =========================
+# STEP 7: CREATE HERO SECTION
+# This top section introduces the purpose
+# of the fairness analysis page
+# =========================
 st.markdown("""
 <div class="page-hero">
     <div class="hero-badge">⚖️ Core Bias Evaluation</div>
@@ -327,7 +374,13 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ---------------- SUMMARY ----------------
+
+# =========================
+# STEP 8: DISPLAY FAIRNESS SUMMARY CARDS
+# These cards show the main fairness measures
+# such as male selection rate, female selection rate,
+# disparate impact, and SPD
+# =========================
 st.markdown('<div class="section-title">Fairness Summary</div>', unsafe_allow_html=True)
 st.markdown('<div class="section-subtitle">Key fairness indicators that help reveal whether one gender group receives more favorable outcomes than the other.</div>', unsafe_allow_html=True)
 
@@ -369,9 +422,20 @@ with c4:
     </div>
     """, unsafe_allow_html=True)
 
-# ---------------- CHARTS ----------------
+
+# =========================
+# STEP 9: CREATE TWO COLUMNS FOR CHARTS
+# Left side is for selection rate comparison
+# Right side is for disparate impact threshold check
+# =========================
 v1, v2 = st.columns(2)
 
+
+# =========================
+# STEP 10: SHOW SELECTION RATE COMPARISON CHART
+# This chart visually compares positive outcome rates
+# for male and female groups
+# =========================
 with v1:
     st.markdown('<div class="section-title">Selection Rate Comparison</div>', unsafe_allow_html=True)
     st.markdown('<div class="section-subtitle">Compares positive prediction rates between female and male groups.</div>', unsafe_allow_html=True)
@@ -403,6 +467,12 @@ with v1:
     st.pyplot(fig1)
     st.markdown('</div>', unsafe_allow_html=True)
 
+
+# =========================
+# STEP 11: SHOW DISPARATE IMPACT THRESHOLD CHART
+# This chart checks whether the disparate impact
+# is above or below the fairness threshold of 0.80
+# =========================
 with v2:
     st.markdown('<div class="section-title">Disparate Impact Threshold Check</div>', unsafe_allow_html=True)
     st.markdown('<div class="section-subtitle">Shows how close the model is to the commonly used 0.80 fairness threshold.</div>', unsafe_allow_html=True)
@@ -432,9 +502,20 @@ with v2:
     st.pyplot(fig2)
     st.markdown('</div>', unsafe_allow_html=True)
 
-# ---------------- TABLE + INTERPRETATION ----------------
+
+# =========================
+# STEP 12: CREATE TWO COLUMNS FOR TABLE AND INTERPRETATION
+# Left side shows the fairness metrics table
+# Right side explains what the values mean
+# =========================
 bottom_left, bottom_right = st.columns([1.15, 0.85])
 
+
+# =========================
+# STEP 13: DISPLAY FAIRNESS METRIC TABLE
+# This table gives a compact summary
+# of all main fairness-related values
+# =========================
 with bottom_left:
     st.markdown('<div class="section-title">Fairness Metric Table</div>', unsafe_allow_html=True)
     st.markdown('<div class="section-subtitle">A compact summary of the main fairness metrics computed for the model.</div>', unsafe_allow_html=True)
@@ -470,6 +551,12 @@ with bottom_left:
     st.dataframe(fairness_df, use_container_width=True, height=375)
     st.markdown('</div>', unsafe_allow_html=True)
 
+
+# =========================
+# STEP 14: INTERPRET THE FAIRNESS RESULTS
+# This section explains whether the model
+# appears fair or biased based on the metric values
+# =========================
 with bottom_right:
     st.markdown('<div class="section-title">Interpretation</div>', unsafe_allow_html=True)
     st.markdown('<div class="section-subtitle">Quick explanation of what the fairness values indicate.</div>', unsafe_allow_html=True)
@@ -495,7 +582,12 @@ with bottom_right:
     </div>
     """, unsafe_allow_html=True)
 
-# ---------------- NEXT SECTION ----------------
+
+# =========================
+# STEP 15: SHOW NEXT STEP MESSAGE
+# This tells the user that the next stage
+# is bias mitigation and comparison
+# =========================
 st.markdown("""
 <div class="final-box">
     <div class="final-title">Next Step: Bias Mitigation</div>
@@ -506,7 +598,12 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ---------------- NAVIGATION ----------------
+
+# =========================
+# STEP 16: ADD NAVIGATION BUTTONS
+# These buttons help move to the previous page
+# or the next mitigation page
+# =========================
 st.markdown("<br>", unsafe_allow_html=True)
 
 nav1, nav2, nav3 = st.columns([1.4, 2, 1.4])

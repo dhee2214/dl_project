@@ -1,11 +1,27 @@
+# =========================
+# STEP 1: IMPORT LIBRARY
+# =========================
 import streamlit as st
 
+
+# =========================
+# STEP 2: PAGE CONFIGURATION
+# This sets the page title,
+# layout width, and sidebar state
+# =========================
 st.set_page_config(
     page_title="Fairness Analysis Dashboard",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
+
+# =========================
+# STEP 3: CUSTOM CSS STYLING
+# This section is used to design
+# the full page, sidebar, cards,
+# hero section, buttons, and responsiveness
+# =========================
 st.markdown("""
 <style>
 /* ---------- Base ---------- */
@@ -84,7 +100,7 @@ section[data-testid="stSidebar"] * {
     font-size: 16px !important;
 }
 
-/* ---------- Hero ---------- */
+/* ---------- Hero Section ---------- */
 .hero-shell {
     position: relative;
     overflow: hidden;
@@ -184,7 +200,7 @@ section[data-testid="stSidebar"] * {
     line-height: 1.2;
 }
 
-/* ---------- Headings ---------- */
+/* ---------- Section Headings ---------- */
 .section-title {
     font-size: 31px;
     font-weight: 900;
@@ -201,7 +217,7 @@ section[data-testid="stSidebar"] * {
     line-height: 1.75;
 }
 
-/* ---------- Highlight cards ---------- */
+/* ---------- Highlight Cards ---------- */
 .pretty-card {
     position: relative;
     overflow: hidden;
@@ -259,7 +275,7 @@ section[data-testid="stSidebar"] * {
     line-height: 1.16;
 }
 
-/* ---------- Workflow cards ---------- */
+/* ---------- Workflow Cards ---------- */
 .workflow-card {
     position: relative;
     overflow: hidden;
@@ -318,7 +334,7 @@ section[data-testid="stSidebar"] * {
     line-height: 1.78;
 }
 
-/* ---------- CTA ---------- */
+/* ---------- CTA Section ---------- */
 .cta-shell {
     position: relative;
     overflow: hidden;
@@ -406,7 +422,7 @@ section[data-testid="stSidebar"] * {
     margin: 0 !important;
 }
 
-/* ---------- Responsive ---------- */
+/* ---------- Responsive Design ---------- */
 @media (max-width: 1100px) {
     .hero-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -433,6 +449,12 @@ section[data-testid="stSidebar"] * {
 </style>
 """, unsafe_allow_html=True)
 
+
+# =========================
+# STEP 4: HERO SECTION
+# This is the main welcome area
+# shown at the top of the homepage
+# =========================
 st.markdown("""
 <div class="hero-shell">
     <div class="hero-badge">✨ AI Fairness Project Dashboard</div>
@@ -463,6 +485,12 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+
+# =========================
+# STEP 5: PROJECT HIGHLIGHTS
+# These cards show the main
+# important details of the project
+# =========================
 st.markdown('<div class="section-title">Project Highlights</div>', unsafe_allow_html=True)
 st.markdown('<div class="section-subtitle">An attractive overview of the core components that make your project stand out.</div>', unsafe_allow_html=True)
 
@@ -504,6 +532,12 @@ with c4:
     </div>
     """, unsafe_allow_html=True)
 
+
+# =========================
+# STEP 6: PROJECT WORKFLOW
+# This explains the complete
+# project process in 4 steps
+# =========================
 st.markdown('<div class="section-title">Project Workflow</div>', unsafe_allow_html=True)
 st.markdown('<div class="section-subtitle">A smooth step-by-step flow that helps the evaluator understand the complete project journey clearly.</div>', unsafe_allow_html=True)
 
@@ -553,6 +587,12 @@ with w4:
     </div>
     """, unsafe_allow_html=True)
 
+
+# =========================
+# STEP 7: CALL TO ACTION SECTION
+# This gives a final attractive
+# message before navigation button
+# =========================
 st.markdown("""
 <div class="cta-shell">
     <div class="cta-title">Ready to Begin the Journey?</div>
@@ -562,6 +602,13 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+
+# =========================
+# STEP 8: NAVIGATION BUTTON
+# This button moves the user
+# to the first page of the project
+# =========================
 left, center, right = st.columns([1.5, 2, 1.5])
+
 with center:
     st.page_link("pages/1_Dataset_Overview.py", label="Start Exploring ✨", use_container_width=True)

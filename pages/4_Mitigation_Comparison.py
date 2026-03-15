@@ -1,3 +1,13 @@
+# =========================
+# STEP 1: IMPORT REQUIRED LIBRARIES
+# Streamlit is used to build the web application interface
+# Pandas is used for creating and displaying tables
+# Matplotlib is used for visualizing charts
+# sklearn metrics are used to measure model performance
+# train_and_evaluate() gives model outputs before mitigation
+# calculate_fairness() computes fairness metrics
+# apply_threshold_mitigation() is used to reduce bias by changing thresholds
+# =========================
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -6,12 +16,23 @@ from model.train_model import train_and_evaluate
 from fairness.fairness_metrics import calculate_fairness
 from fairness.mitigation import apply_threshold_mitigation
 
+
+# =========================
+# STEP 2: CONFIGURE PAGE SETTINGS
+# This sets the page title, layout, and sidebar behavior
+# =========================
 st.set_page_config(
     page_title="Mitigation Comparison",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
+
+# =========================
+# STEP 3: APPLY CUSTOM PAGE STYLING
+# This CSS section is used to style the full page,
+# sidebar, header, cards, charts, tables, and buttons
+# =========================
 st.markdown("""
 <style>
 html, body, [data-testid="stAppViewContainer"], .main {
@@ -212,6 +233,16 @@ section[data-testid="stSidebar"] > div {
 </style>
 """, unsafe_allow_html=True)
 
+
+# =========================
+# STEP 4: DEFINE FUNCTION TO GET ALL RESULTS
+# This function:
+# 1. Trains the model
+# 2. Gets predictions before mitigation
+# 3. Applies threshold-based mitigation
+# 4. Computes fairness before and after mitigation
+# 5. Computes performance metrics before and after mitigation
+# =========================
 @st.cache_resource
 def get_all_results():
     results = train_and_evaluate()
@@ -221,9 +252,11 @@ def get_all_results():
     y_pred_before = results["y_pred"]
     y_prob = results["y_prob"]
 
+    # Define separate thresholds for male and female groups
     male_threshold = 0.50
     female_threshold = 0.30
 
+    # Apply post-processing mitigation
     y_pred_after = apply_threshold_mitigation(
         y_prob,
         sensitive_test,
@@ -231,9 +264,11 @@ def get_all_results():
         female_threshold=female_threshold
     )
 
+    # Calculate fairness metrics before and after mitigation
     fairness_before = calculate_fairness(y_test, y_pred_before, sensitive_test)
     fairness_after = calculate_fairness(y_test, y_pred_after, sensitive_test)
 
+    # Calculate model performance before mitigation
     metrics_before = {
         "accuracy": accuracy_score(y_test, y_pred_before),
         "precision": precision_score(y_test, y_pred_before, zero_division=0),
@@ -241,6 +276,7 @@ def get_all_results():
         "f1": f1_score(y_test, y_pred_before, zero_division=0)
     }
 
+    # Calculate model performance after mitigation
     metrics_after = {
         "accuracy": accuracy_score(y_test, y_pred_after),
         "precision": precision_score(y_test, y_pred_after, zero_division=0),
@@ -257,6 +293,11 @@ def get_all_results():
         male_threshold
     )
 
+
+# =========================
+# STEP 5: LOAD ALL RESULTS WITH SPINNER
+# A loading message is shown while mitigation and comparison are performed
+# =========================
 with st.spinner("Applying mitigation and comparing final results..."):
     (
         metrics_before,
@@ -267,9 +308,20 @@ with st.spinner("Applying mitigation and comparing final results..."):
         male_threshold
     ) = get_all_results()
 
+
+# =========================
+# STEP 6: CALCULATE IMPORTANT CHANGES
+# These values show how much the accuracy
+# and disparate impact changed after mitigation
+# =========================
 acc_change = metrics_after["accuracy"] - metrics_before["accuracy"]
 di_change = fairness_after["disparate_impact"] - fairness_before["disparate_impact"]
 
+
+# =========================
+# STEP 7: DISPLAY PAGE INTRODUCTION
+# This section introduces the purpose of this final page
+# =========================
 st.markdown("""
 <div class="page-box">
     <div class="page-title">Mitigation Comparison</div>
@@ -280,6 +332,12 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+
+# =========================
+# STEP 8: SHOW KEY RESULT CARDS
+# These cards highlight important before-vs-after results
+# such as accuracy, F1 score, disparate impact, and thresholds used
+# =========================
 st.markdown('<div class="section-title">Key Result Cards</div>', unsafe_allow_html=True)
 
 r1, r2, r3, r4 = st.columns(4)
@@ -320,8 +378,20 @@ with r4:
     </div>
     """, unsafe_allow_html=True)
 
+
+# =========================
+# STEP 9: CREATE TWO COLUMNS
+# Left side will show the comparison table
+# Right side will show the metric shift chart
+# =========================
 left, right = st.columns([1.15, 1])
 
+
+# =========================
+# STEP 10: DISPLAY COMPARISON TABLE
+# This table shows before and after values
+# for both performance and fairness metrics
+# =========================
 with left:
     st.markdown('<div class="section-title">Comparison Table</div>', unsafe_allow_html=True)
 
@@ -365,6 +435,12 @@ with left:
     st.dataframe(comparison_df, use_container_width=True, height=360)
     st.markdown('</div>', unsafe_allow_html=True)
 
+
+# =========================
+# STEP 11: DISPLAY METRIC SHIFT CHART
+# This chart visually shows how each important metric
+# moved from before mitigation to after mitigation
+# =========================
 with right:
     st.markdown('<div class="section-title">Metric Shift View</div>', unsafe_allow_html=True)
     st.markdown('<div class="chart-box">', unsafe_allow_html=True)
@@ -416,18 +492,42 @@ with right:
     st.pyplot(fig)
     st.markdown('</div>', unsafe_allow_html=True)
 
+
+# =========================
+# STEP 12: DISPLAY FINAL INTERPRETATION HEADING
+# This section gives the final conclusion
+# about fairness improvement and performance stability
+# =========================
 st.markdown('<div class="section-title">Final Interpretation</div>', unsafe_allow_html=True)
 
+
+# =========================
+# STEP 13: CHECK WHETHER FAIRNESS IMPROVED
+# If disparate impact increased after mitigation,
+# then fairness is considered improved
+# =========================
 if fairness_after["disparate_impact"] > fairness_before["disparate_impact"]:
     fairness_status = "Fairness improved after mitigation."
 else:
     fairness_status = "Fairness did not improve clearly after mitigation."
 
+
+# =========================
+# STEP 14: CHECK WHETHER PERFORMANCE REMAINED STABLE
+# If the accuracy drop is very small,
+# performance is considered reasonably stable
+# =========================
 if metrics_after["accuracy"] >= metrics_before["accuracy"] - 0.03:
     performance_status = "Model performance remained reasonably stable after mitigation."
 else:
     performance_status = "Model performance dropped noticeably after mitigation."
 
+
+# =========================
+# STEP 15: DISPLAY FINAL CONCLUSION BOX
+# This section explains the final decision
+# after comparing fairness and performance
+# =========================
 st.markdown(f"""
 <div class="insight-box">
 <b>Fairness Decision:</b> {fairness_status}<br><br>
@@ -437,6 +537,11 @@ for female and male groups. The final comparison helps determine whether bias re
 </div>
 """, unsafe_allow_html=True)
 
+
+# =========================
+# STEP 16: DISPLAY PROJECT COMPLETION MESSAGE
+# This shows that the full project flow is completed
+# =========================
 st.markdown("""
 <div class="final-box">
     <h3 style="color:#1e3a8a; margin-bottom:8px;">Project Flow Completed</h3>
@@ -446,6 +551,12 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
+
+# =========================
+# STEP 17: ADD NAVIGATION BUTTONS
+# These buttons allow the user to go back
+# to the fairness page or return to the home page
+# =========================
 nav1, nav2, nav3 = st.columns([1.5, 2, 1.5])
 
 with nav1:
