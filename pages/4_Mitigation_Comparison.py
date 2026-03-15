@@ -6,7 +6,11 @@ from model.train_model import train_and_evaluate
 from fairness.fairness_metrics import calculate_fairness
 from fairness.mitigation import apply_threshold_mitigation
 
-st.set_page_config(page_title="Mitigation Comparison", layout="wide")
+st.set_page_config(
+    page_title="Mitigation Comparison",
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
 
 st.markdown("""
 <style>
@@ -16,6 +20,72 @@ html, body, [data-testid="stAppViewContainer"], .main {
 
 [data-testid="stApp"] {
     background-color: #ffffff !important;
+}
+
+/* Top header */
+header[data-testid="stHeader"] {
+    background: #0f172a !important;
+}
+
+/* Sidebar full area */
+section[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%) !important;
+    border-right: 1px solid rgba(255,255,255,0.08);
+}
+
+/* Sidebar inner spacing */
+section[data-testid="stSidebar"] > div {
+    padding-top: 1.2rem;
+}
+
+/* Navigation item container */
+[data-testid="stSidebarNav"] {
+    padding-top: 1rem !important;
+}
+
+/* Sidebar nav links */
+[data-testid="stSidebarNav"] a {
+    background: transparent !important;
+    color: #e2e8f0 !important;
+    padding: 12px 16px !important;
+    margin: 6px 10px !important;
+    border-radius: 12px !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease-in-out !important;
+    border-left: 4px solid transparent !important;
+}
+
+/* Hover effect */
+[data-testid="stSidebarNav"] a:hover {
+    background: rgba(255,255,255,0.08) !important;
+    color: #ffffff !important;
+    border-left: 4px solid #60a5fa !important;
+}
+
+/* Active page */
+[data-testid="stSidebarNav"] a[aria-current="page"] {
+    background: rgba(255,255,255,0.12) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    border-left: 4px solid #3b82f6 !important;
+}
+
+/* Sidebar text */
+[data-testid="stSidebarNav"] span {
+    color: inherit !important;
+    font-size: 17px !important;
+}
+
+/* Sidebar heading */
+[data-testid="stSidebarNav"]::before {
+    content: "☰ Navigation";
+    display: block;
+    font-size: 22px;
+    font-weight: 800;
+    color: white;
+    margin: 0 14px 16px 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
 }
 
 .block-container {

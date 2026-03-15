@@ -4,25 +4,256 @@ import matplotlib.pyplot as plt
 from model.train_model import train_and_evaluate
 from fairness.fairness_metrics import calculate_fairness
 
-st.set_page_config(page_title="Fairness Analysis", layout="wide")
+st.set_page_config(
+    page_title="Fairness Analysis",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
 st.markdown("""
 <style>
 html, body, [data-testid="stAppViewContainer"], .main {
-    background-color: #ffffff !important;
+    background:
+        radial-gradient(circle at top left, rgba(96, 165, 250, 0.18), transparent 24%),
+        radial-gradient(circle at top right, rgba(168, 85, 247, 0.16), transparent 22%),
+        radial-gradient(circle at bottom left, rgba(244, 114, 182, 0.10), transparent 20%),
+        linear-gradient(180deg, #eef4ff 0%, #f8fbff 55%, #fcfcff 100%) !important;
+    color: #0f172a;
 }
 
 [data-testid="stApp"] {
-    background-color: #ffffff !important;
+    background: transparent !important;
 }
 
 .block-container {
-    padding-top: 1.2rem;
-    padding-bottom: 1.2rem;
-    padding-left: 2.0rem;
-    padding-right: 2.0rem;
+    max-width: 1450px;
+    padding-top: 1.6rem;
+    padding-bottom: 2rem;
+    padding-left: 2.2rem;
+    padding-right: 2.2rem;
 }
 
+header[data-testid="stHeader"] {
+    background: rgba(255,255,255,0.0) !important;
+}
+
+/* Sidebar */
+section[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #0f172a 0%, #172554 45%, #1e1b4b 100%) !important;
+    border-right: 1px solid rgba(255,255,255,0.08);
+}
+
+section[data-testid="stSidebar"] * {
+    color: #ffffff !important;
+}
+
+[data-testid="stSidebarNav"] {
+    padding-top: 1rem !important;
+}
+
+[data-testid="stSidebarNav"]::before {
+    content: "Project Navigation";
+    display: block;
+    font-size: 26px;
+    font-weight: 800;
+    color: white;
+    margin: 0 14px 16px 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+
+[data-testid="stSidebarNav"] a {
+    border-radius: 14px !important;
+    margin: 7px 8px !important;
+    padding: 12px 14px !important;
+    background: rgba(255,255,255,0.05) !important;
+    backdrop-filter: blur(10px);
+    transition: all 0.25s ease;
+}
+
+[data-testid="stSidebarNav"] a:hover {
+    background: rgba(255,255,255,0.11) !important;
+    transform: translateX(4px);
+}
+
+[data-testid="stSidebarNav"] a[aria-current="page"] {
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899) !important;
+    box-shadow: 0 10px 24px rgba(99, 102, 241, 0.32);
+}
+
+[data-testid="stSidebarNav"] span {
+    color: inherit !important;
+    font-size: 16px !important;
+}
+
+/* Hero */
+.page-hero {
+    position: relative;
+    overflow: hidden;
+    border-radius: 32px;
+    padding: 2.8rem 2.6rem 2.4rem 2.6rem;
+    background: linear-gradient(135deg, #2563eb 0%, #4f46e5 35%, #7c3aed 65%, #ec4899 100%);
+    box-shadow: 0 26px 56px rgba(79, 70, 229, 0.22);
+    margin-bottom: 26px;
+}
+
+.page-hero::before {
+    content: "";
+    position: absolute;
+    width: 340px;
+    height: 340px;
+    top: -120px;
+    right: -70px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.24), rgba(255,255,255,0.04) 65%, transparent 76%);
+}
+
+.page-hero::after {
+    content: "";
+    position: absolute;
+    width: 240px;
+    height: 240px;
+    left: -50px;
+    bottom: -90px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.16), rgba(255,255,255,0.03) 65%, transparent 78%);
+}
+
+.hero-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.14);
+    border: 1px solid rgba(255,255,255,0.20);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    backdrop-filter: blur(12px);
+}
+
+.page-title {
+    font-size: 46px;
+    font-weight: 900;
+    line-height: 1.1;
+    color: white;
+    margin-bottom: 14px;
+    letter-spacing: -0.6px;
+}
+
+.page-text {
+    font-size: 18px;
+    color: rgba(255,255,255,0.93);
+    line-height: 1.8;
+    max-width: 920px;
+}
+
+/* Titles */
+.section-title {
+    font-size: 30px;
+    font-weight: 900;
+    color: #0f172a;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    letter-spacing: -0.4px;
+}
+
+.section-subtitle {
+    font-size: 16px;
+    color: #64748b;
+    margin-top: -4px;
+    margin-bottom: 18px;
+    line-height: 1.75;
+}
+
+/* Cards */
+.metric-card {
+    position: relative;
+    overflow: hidden;
+    padding: 22px;
+    border-radius: 24px;
+    color: white;
+    text-align: left;
+    box-shadow: 0 18px 35px rgba(15, 23, 42, 0.12);
+    min-height: 145px;
+}
+
+.metric-card::after {
+    content: "";
+    position: absolute;
+    width: 110px;
+    height: 110px;
+    top: -20px;
+    right: -18px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+}
+
+.metric-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    opacity: 0.96;
+}
+
+.metric-value {
+    font-size: 30px;
+    font-weight: 900;
+    line-height: 1.15;
+}
+
+.metric-sub {
+    font-size: 14px;
+    opacity: 0.95;
+    margin-top: 10px;
+    line-height: 1.5;
+}
+
+/* Glass boxes */
+.chart-box, .table-box, .insight-panel {
+    background: rgba(255,255,255,0.80);
+    border: 1px solid rgba(255,255,255,0.72);
+    padding: 18px;
+    border-radius: 24px;
+    box-shadow: 0 18px 34px rgba(148, 163, 184, 0.14);
+    backdrop-filter: blur(14px);
+}
+
+.insight-box {
+    background: linear-gradient(135deg, rgba(238,242,255,0.92), rgba(248,250,252,0.92));
+    padding: 20px;
+    border-radius: 20px;
+    border-left: 5px solid #6366f1;
+    color: #334155;
+    font-size: 15px;
+    line-height: 1.8;
+    box-shadow: 0 10px 24px rgba(148, 163, 184, 0.10);
+}
+
+.final-box {
+    margin-top: 22px;
+    padding: 24px;
+    border-radius: 26px;
+    background: linear-gradient(135deg, #eef2ff, #fdf2f8);
+    text-align: center;
+    box-shadow: 0 18px 34px rgba(148, 163, 184, 0.14);
+    border: 1px solid rgba(255,255,255,0.75);
+}
+
+.final-title {
+    color: #1e3a8a;
+    font-size: 30px;
+    font-weight: 900;
+    margin-bottom: 10px;
+}
+
+.final-text {
+    color: #475569;
+    font-size: 17px;
+    line-height: 1.7;
+}
+
+/* Page buttons */
 [data-testid="stPageLink"] {
     text-align: center !important;
 }
@@ -32,14 +263,14 @@ html, body, [data-testid="stAppViewContainer"], .main {
     justify-content: center !important;
     align-items: center !important;
     width: 100% !important;
-    background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
+    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 55%, #ec4899 100%) !important;
     color: #ffffff !important;
-    border-radius: 12px !important;
-    padding: 10px 14px !important;
-    font-size: 16px !important;
-    font-weight: 700 !important;
+    border-radius: 18px !important;
+    padding: 14px 18px !important;
+    font-size: 17px !important;
+    font-weight: 800 !important;
     text-decoration: none !important;
-    box-shadow: 0 8px 18px rgba(37, 99, 235, 0.20) !important;
+    box-shadow: 0 14px 28px rgba(99, 102, 241, 0.24) !important;
 }
 
 [data-testid="stPageLink"] a p,
@@ -48,94 +279,13 @@ html, body, [data-testid="stAppViewContainer"], .main {
     margin: 0 !important;
 }
 
-.page-box {
-    background: linear-gradient(135deg, #eff6ff, #f0fdf4);
-    padding: 20px;
-    border-radius: 18px;
-    border: 1px solid #dbeafe;
-    margin-bottom: 14px;
-}
-
-.page-title {
-    font-size: 30px;
-    font-weight: 800;
-    color: #1e3a8a;
-    margin-bottom: 8px;
-}
-
-.page-text {
-    font-size: 15px;
-    color: #475569;
-    line-height: 1.6;
-}
-
-.section-title {
-    font-size: 22px;
-    font-weight: 700;
-    color: #111827;
-    margin-top: 12px;
-    margin-bottom: 8px;
-}
-
-.metric-card {
-    padding: 15px;
-    border-radius: 16px;
-    color: white;
-    text-align: center;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
-    min-height: 92px;
-}
-
-.metric-title {
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 6px;
-}
-
-.metric-value {
-    font-size: 20px;
-    font-weight: 800;
-}
-
-.metric-sub {
-    font-size: 12px;
-    opacity: 0.95;
-    margin-top: 4px;
-}
-
-.chart-box {
-    background: #ffffff;
-    padding: 12px;
-    border-radius: 16px;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.06);
-    border: 1px solid #e5e7eb;
-}
-
-.table-box {
-    background: #ffffff;
-    padding: 12px;
-    border-radius: 16px;
-    border: 1px solid #e5e7eb;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.05);
-}
-
-.insight-box {
-    background: linear-gradient(135deg, #eef2ff, #f8fafc);
-    padding: 14px;
-    border-radius: 14px;
-    border-left: 5px solid #4f46e5;
-    color: #334155;
-    font-size: 14px;
-    line-height: 1.6;
-}
-
-.final-box {
-    margin-top: 12px;
-    padding: 16px;
-    border-radius: 18px;
-    background: linear-gradient(135deg, #eef2ff, #fdf2f8);
-    text-align: center;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+@media (max-width: 700px) {
+    .page-title {
+        font-size: 32px;
+    }
+    .page-hero {
+        padding: 2rem 1.4rem;
+    }
 }
 </style>
 """, unsafe_allow_html=True)
@@ -164,17 +314,22 @@ eod = fairness_results["equal_opportunity_difference"]
 
 selection_gap = abs(male_rate - female_rate)
 
+# ---------------- HERO ----------------
 st.markdown("""
-<div class="page-box">
+<div class="page-hero">
+    <div class="hero-badge">⚖️ Core Bias Evaluation</div>
     <div class="page-title">Fairness Analysis</div>
     <div class="page-text">
-        This page evaluates whether the trained model produces balanced outcomes across male and female groups.
-        It focuses on selection rate comparison, disparate impact, statistical parity difference, and equal opportunity difference.
+        This page examines whether the trained model produces balanced decisions for male and female groups.
+        It highlights selection rates, disparate impact, statistical parity difference, and equal opportunity
+        difference to identify whether the model behaves fairly across sensitive groups.
     </div>
 </div>
 """, unsafe_allow_html=True)
 
+# ---------------- SUMMARY ----------------
 st.markdown('<div class="section-title">Fairness Summary</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-subtitle">Key fairness indicators that help reveal whether one gender group receives more favorable outcomes than the other.</div>', unsafe_allow_html=True)
 
 c1, c2, c3, c4 = st.columns(4)
 
@@ -183,7 +338,7 @@ with c1:
     <div class="metric-card" style="background: linear-gradient(135deg, #3b82f6, #2563eb);">
         <div class="metric-title">Male Selection Rate</div>
         <div class="metric-value">{male_rate:.4f}</div>
-        <div class="metric-sub">Positive outcomes for males</div>
+        <div class="metric-sub">Positive outcome rate observed for male instances.</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -192,7 +347,7 @@ with c2:
     <div class="metric-card" style="background: linear-gradient(135deg, #ec4899, #db2777);">
         <div class="metric-title">Female Selection Rate</div>
         <div class="metric-value">{female_rate:.4f}</div>
-        <div class="metric-sub">Positive outcomes for females</div>
+        <div class="metric-sub">Positive outcome rate observed for female instances.</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -201,7 +356,7 @@ with c3:
     <div class="metric-card" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
         <div class="metric-title">Disparate Impact</div>
         <div class="metric-value">{disparate_impact:.4f}</div>
-        <div class="metric-sub">Target fairness threshold: 0.80</div>
+        <div class="metric-sub">A value near or above 0.80 is generally preferred.</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -210,25 +365,27 @@ with c4:
     <div class="metric-card" style="background: linear-gradient(135deg, #10b981, #059669);">
         <div class="metric-title">SPD</div>
         <div class="metric-value">{spd:.4f}</div>
-        <div class="metric-sub">Selection rate difference</div>
+        <div class="metric-sub">Difference between group selection rates.</div>
     </div>
     """, unsafe_allow_html=True)
 
+# ---------------- CHARTS ----------------
 v1, v2 = st.columns(2)
 
 with v1:
     st.markdown('<div class="section-title">Selection Rate Comparison</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-subtitle">Compares positive prediction rates between female and male groups.</div>', unsafe_allow_html=True)
     st.markdown('<div class="chart-box">', unsafe_allow_html=True)
 
-    fig1, ax1 = plt.subplots(figsize=(6.3, 3.2))
+    fig1, ax1 = plt.subplots(figsize=(6.3, 3.5))
 
     groups = ["Female", "Male"]
     values = [female_rate, male_rate]
     colors = ["#ec4899", "#3b82f6"]
     y_positions = [0, 1]
 
-    ax1.hlines(y=y_positions, xmin=0, xmax=values, color=colors, linewidth=5, alpha=0.9)
-    ax1.scatter(values, y_positions, s=420, color=colors, zorder=3)
+    ax1.hlines(y=y_positions, xmin=0, xmax=values, color=colors, linewidth=6, alpha=0.92)
+    ax1.scatter(values, y_positions, s=440, color=colors, zorder=3)
 
     for i, val in enumerate(values):
         ax1.text(val + 0.012, y_positions[i], f"{val:.3f}", va="center", fontsize=11, fontweight="bold")
@@ -237,7 +394,7 @@ with v1:
     ax1.set_yticklabels(groups, fontsize=11)
     ax1.set_xlim(0, max(0.38, max(values) + 0.10))
     ax1.set_xlabel("Selection Rate", fontsize=10)
-    ax1.set_title("Gender-wise Positive Outcome Rate", fontsize=14, fontweight="bold")
+    ax1.set_title("Gender-wise Positive Outcome Rate", fontsize=14, fontweight="bold", pad=10)
     ax1.grid(axis="x", linestyle="--", alpha=0.25)
 
     for spine in ["top", "right"]:
@@ -248,25 +405,26 @@ with v1:
 
 with v2:
     st.markdown('<div class="section-title">Disparate Impact Threshold Check</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-subtitle">Shows how close the model is to the commonly used 0.80 fairness threshold.</div>', unsafe_allow_html=True)
     st.markdown('<div class="chart-box">', unsafe_allow_html=True)
 
-    fig2, ax2 = plt.subplots(figsize=(6.3, 3.2))
+    fig2, ax2 = plt.subplots(figsize=(6.3, 3.5))
 
     current_value = min(disparate_impact, 1.0)
 
-    ax2.hlines(y=0, xmin=0, xmax=1.0, color="#e5e7eb", linewidth=14)
-    ax2.hlines(y=0, xmin=0, xmax=current_value, color="#8b5cf6", linewidth=14)
-    ax2.scatter([current_value], [0], s=260, color="#7c3aed", zorder=3)
+    ax2.hlines(y=0, xmin=0, xmax=1.0, color="#e5e7eb", linewidth=16)
+    ax2.hlines(y=0, xmin=0, xmax=current_value, color="#8b5cf6", linewidth=16)
+    ax2.scatter([current_value], [0], s=280, color="#7c3aed", zorder=3)
     ax2.axvline(x=0.8, color="#ef4444", linestyle="--", linewidth=2)
 
-    ax2.text(current_value, 0.12, f"{disparate_impact:.3f}", ha="center", fontsize=12, fontweight="bold")
-    ax2.text(0.8, -0.18, "0.80 threshold", ha="center", fontsize=10, color="#ef4444", fontweight="bold")
+    ax2.text(current_value, 0.13, f"{disparate_impact:.3f}", ha="center", fontsize=12, fontweight="bold")
+    ax2.text(0.8, -0.20, "0.80 threshold", ha="center", fontsize=10, color="#ef4444", fontweight="bold")
 
     ax2.set_xlim(0, 1.0)
-    ax2.set_ylim(-0.28, 0.28)
+    ax2.set_ylim(-0.30, 0.30)
     ax2.set_yticks([])
     ax2.set_xlabel("Disparate Impact", fontsize=10)
-    ax2.set_title("Fairness Threshold View", fontsize=14, fontweight="bold")
+    ax2.set_title("Fairness Threshold View", fontsize=14, fontweight="bold", pad=10)
 
     for spine in ["top", "right", "left"]:
         ax2.spines[spine].set_visible(False)
@@ -274,10 +432,12 @@ with v2:
     st.pyplot(fig2)
     st.markdown('</div>', unsafe_allow_html=True)
 
+# ---------------- TABLE + INTERPRETATION ----------------
 bottom_left, bottom_right = st.columns([1.15, 0.85])
 
 with bottom_left:
     st.markdown('<div class="section-title">Fairness Metric Table</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-subtitle">A compact summary of the main fairness metrics computed for the model.</div>', unsafe_allow_html=True)
 
     fairness_df = pd.DataFrame({
         "Metric": [
@@ -307,21 +467,22 @@ with bottom_left:
     })
 
     st.markdown('<div class="table-box">', unsafe_allow_html=True)
-    st.dataframe(fairness_df, use_container_width=True, height=350)
+    st.dataframe(fairness_df, use_container_width=True, height=375)
     st.markdown('</div>', unsafe_allow_html=True)
 
 with bottom_right:
     st.markdown('<div class="section-title">Interpretation</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-subtitle">Quick explanation of what the fairness values indicate.</div>', unsafe_allow_html=True)
 
     if disparate_impact >= 0.8:
-        fairness_note = "The disparate impact is above the common 0.80 threshold, suggesting comparatively better fairness."
+        fairness_note = "The disparate impact is above the common 0.80 threshold, suggesting comparatively better fairness across groups."
     else:
-        fairness_note = "The disparate impact is below the common 0.80 threshold, indicating possible gender bias."
+        fairness_note = "The disparate impact is below the common 0.80 threshold, indicating possible gender bias in model outcomes."
 
     if abs(spd) < 0.10:
-        spd_note = "The statistical parity difference is relatively small."
+        spd_note = "The statistical parity difference is relatively small, which suggests the selection rates are closer between groups."
     else:
-        spd_note = "The statistical parity difference shows a noticeable difference between groups."
+        spd_note = "The statistical parity difference is noticeable, showing that the model treats the two groups differently in outcome rate."
 
     st.markdown(f"""
     <div class="insight-box">
@@ -329,21 +490,26 @@ with bottom_right:
     <b>Gap Observation:</b> The male selection rate is <b>{male_rate:.4f}</b> and the female selection rate is <b>{female_rate:.4f}</b>,
     resulting in a gap of <b>{selection_gap:.4f}</b>.<br><br>
     <b>SPD Observation:</b> {spd_note}<br><br>
-    <b>EOD Observation:</b> Equal opportunity difference is <b>{eod:.4f}</b>, which helps show whether the model treats qualified
-    male and female instances similarly.
+    <b>EOD Observation:</b> Equal opportunity difference is <b>{eod:.4f}</b>, which helps indicate whether qualified male and female
+    instances are treated similarly by the model.
     </div>
     """, unsafe_allow_html=True)
 
+# ---------------- NEXT SECTION ----------------
 st.markdown("""
 <div class="final-box">
-    <h3 style="color:#1e3a8a; margin-bottom:8px;">Next Step: Bias Mitigation</h3>
-    <p style="color:#475569; font-size:15px; margin-bottom:0;">
-        The next page applies threshold-based mitigation and compares fairness and performance before and after correction.
-    </p>
+    <div class="final-title">Next Step: Bias Mitigation</div>
+    <div class="final-text">
+        Continue to the next page to apply threshold-based mitigation and compare fairness
+        and model performance before and after correction.
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
-nav1, nav2, nav3 = st.columns([1.5, 2, 1.5])
+# ---------------- NAVIGATION ----------------
+st.markdown("<br>", unsafe_allow_html=True)
+
+nav1, nav2, nav3 = st.columns([1.4, 2, 1.4])
 
 with nav1:
     st.page_link("pages/2_Model_Performance.py", label="← Back", use_container_width=True)

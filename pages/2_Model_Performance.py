@@ -3,25 +3,268 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from model.train_model import train_and_evaluate
 
-st.set_page_config(page_title="Model Performance", layout="wide")
+st.set_page_config(
+    page_title="Model Performance",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
+# ---------------- PAGE STYLING ----------------
 st.markdown("""
 <style>
 html, body, [data-testid="stAppViewContainer"], .main {
-    background-color: #ffffff !important;
+    background:
+        radial-gradient(circle at top left, rgba(96, 165, 250, 0.18), transparent 24%),
+        radial-gradient(circle at top right, rgba(168, 85, 247, 0.16), transparent 22%),
+        radial-gradient(circle at bottom left, rgba(244, 114, 182, 0.10), transparent 20%),
+        linear-gradient(180deg, #eef4ff 0%, #f8fbff 55%, #fcfcff 100%) !important;
+    color: #0f172a;
 }
 
 [data-testid="stApp"] {
-    background-color: #ffffff !important;
+    background: transparent !important;
 }
 
 .block-container {
-    padding-top: 1.4rem;
-    padding-bottom: 1.4rem;
+    max-width: 1450px;
+    padding-top: 1.6rem;
+    padding-bottom: 2rem;
     padding-left: 2.2rem;
     padding-right: 2.2rem;
 }
 
+/* Header */
+header[data-testid="stHeader"] {
+    background: rgba(255,255,255,0.0) !important;
+}
+
+/* Sidebar */
+section[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #0f172a 0%, #172554 45%, #1e1b4b 100%) !important;
+    border-right: 1px solid rgba(255,255,255,0.08);
+}
+
+section[data-testid="stSidebar"] * {
+    color: #ffffff !important;
+}
+
+[data-testid="stSidebarNav"] {
+    padding-top: 1rem !important;
+}
+
+[data-testid="stSidebarNav"]::before {
+    content: "Project Navigation";
+    display: block;
+    font-size: 26px;
+    font-weight: 800;
+    color: white;
+    margin: 0 14px 16px 14px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+}
+
+[data-testid="stSidebarNav"] a {
+    border-radius: 14px !important;
+    margin: 7px 8px !important;
+    padding: 12px 14px !important;
+    background: rgba(255,255,255,0.05) !important;
+    backdrop-filter: blur(10px);
+    transition: all 0.25s ease;
+}
+
+[data-testid="stSidebarNav"] a:hover {
+    background: rgba(255,255,255,0.11) !important;
+    transform: translateX(4px);
+}
+
+[data-testid="stSidebarNav"] a[aria-current="page"] {
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899) !important;
+    box-shadow: 0 10px 24px rgba(99, 102, 241, 0.32);
+}
+
+[data-testid="stSidebarNav"] span {
+    color: inherit !important;
+    font-size: 16px !important;
+}
+
+/* Hero section */
+.page-hero {
+    position: relative;
+    overflow: hidden;
+    border-radius: 32px;
+    padding: 2.8rem 2.6rem 2.4rem 2.6rem;
+    background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 28%, #7c3aed 68%, #ec4899 100%);
+    box-shadow: 0 26px 56px rgba(59, 130, 246, 0.22);
+    margin-bottom: 26px;
+}
+
+.page-hero::before {
+    content: "";
+    position: absolute;
+    width: 320px;
+    height: 320px;
+    top: -110px;
+    right: -70px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.22), rgba(255,255,255,0.03) 65%, transparent 76%);
+}
+
+.page-hero::after {
+    content: "";
+    position: absolute;
+    width: 220px;
+    height: 220px;
+    left: -50px;
+    bottom: -90px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.18), rgba(255,255,255,0.03) 65%, transparent 78%);
+}
+
+.hero-badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.14);
+    border: 1px solid rgba(255,255,255,0.20);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    backdrop-filter: blur(12px);
+}
+
+.page-title {
+    font-size: 46px;
+    font-weight: 900;
+    line-height: 1.1;
+    color: white;
+    margin-bottom: 14px;
+    letter-spacing: -0.6px;
+}
+
+.page-text {
+    font-size: 18px;
+    color: rgba(255,255,255,0.93);
+    line-height: 1.8;
+    max-width: 920px;
+}
+
+/* Titles */
+.section-title {
+    font-size: 30px;
+    font-weight: 900;
+    color: #0f172a;
+    margin-top: 12px;
+    margin-bottom: 12px;
+    letter-spacing: -0.4px;
+}
+
+.section-subtitle {
+    font-size: 16px;
+    color: #64748b;
+    margin-top: -4px;
+    margin-bottom: 18px;
+    line-height: 1.75;
+}
+
+/* Metric cards */
+.metric-card {
+    position: relative;
+    overflow: hidden;
+    padding: 22px;
+    border-radius: 24px;
+    color: white;
+    text-align: left;
+    box-shadow: 0 18px 35px rgba(15, 23, 42, 0.12);
+    min-height: 145px;
+}
+
+.metric-card::after {
+    content: "";
+    position: absolute;
+    width: 110px;
+    height: 110px;
+    top: -20px;
+    right: -18px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+}
+
+.metric-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    opacity: 0.96;
+}
+
+.metric-value {
+    font-size: 30px;
+    font-weight: 900;
+    line-height: 1.15;
+}
+
+.metric-sub {
+    font-size: 14px;
+    opacity: 0.95;
+    margin-top: 10px;
+    line-height: 1.5;
+}
+
+/* Glass boxes */
+.chart-box, .table-box {
+    background: rgba(255,255,255,0.80);
+    border: 1px solid rgba(255,255,255,0.72);
+    padding: 18px;
+    border-radius: 24px;
+    box-shadow: 0 18px 34px rgba(148, 163, 184, 0.14);
+    backdrop-filter: blur(14px);
+}
+
+.chart-heading {
+    font-size: 22px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 10px;
+}
+
+/* Insight */
+.insight-box {
+    background: linear-gradient(135deg, rgba(238,242,255,0.92), rgba(248,250,252,0.92));
+    padding: 20px;
+    border-radius: 20px;
+    border-left: 5px solid #6366f1;
+    color: #334155;
+    font-size: 15px;
+    line-height: 1.8;
+    margin-top: 16px;
+    box-shadow: 0 10px 24px rgba(148, 163, 184, 0.10);
+}
+
+/* Next section */
+.next-box {
+    margin-top: 22px;
+    padding: 24px;
+    border-radius: 26px;
+    background: linear-gradient(135deg, #eef2ff, #fdf2f8);
+    text-align: center;
+    box-shadow: 0 18px 34px rgba(148, 163, 184, 0.14);
+    border: 1px solid rgba(255,255,255,0.75);
+}
+
+.next-title {
+    color: #1e3a8a;
+    font-size: 30px;
+    font-weight: 900;
+    margin-bottom: 10px;
+}
+
+.next-text {
+    color: #475569;
+    font-size: 17px;
+    line-height: 1.7;
+}
+
+/* Page buttons */
 [data-testid="stPageLink"] {
     text-align: center !important;
 }
@@ -31,14 +274,14 @@ html, body, [data-testid="stAppViewContainer"], .main {
     justify-content: center !important;
     align-items: center !important;
     width: 100% !important;
-    background: linear-gradient(135deg, #2563eb, #1d4ed8) !important;
+    background: linear-gradient(135deg, #2563eb 0%, #7c3aed 55%, #ec4899 100%) !important;
     color: #ffffff !important;
-    border-radius: 12px !important;
-    padding: 10px 14px !important;
-    font-size: 16px !important;
-    font-weight: 700 !important;
+    border-radius: 18px !important;
+    padding: 14px 18px !important;
+    font-size: 17px !important;
+    font-weight: 800 !important;
     text-decoration: none !important;
-    box-shadow: 0 8px 18px rgba(37, 99, 235, 0.20) !important;
+    box-shadow: 0 14px 28px rgba(99, 102, 241, 0.24) !important;
 }
 
 [data-testid="stPageLink"] a p,
@@ -47,98 +290,18 @@ html, body, [data-testid="stAppViewContainer"], .main {
     margin: 0 !important;
 }
 
-.page-box {
-    background: linear-gradient(135deg, #eff6ff, #f0fdf4);
-    padding: 22px;
-    border-radius: 18px;
-    border: 1px solid #dbeafe;
-    margin-bottom: 16px;
-}
-
-.page-title {
-    font-size: 32px;
-    font-weight: 800;
-    color: #1e3a8a;
-    margin-bottom: 8px;
-}
-
-.page-text {
-    font-size: 16px;
-    color: #475569;
-    line-height: 1.6;
-}
-
-.section-title {
-    font-size: 24px;
-    font-weight: 700;
-    color: #111827;
-    margin-top: 14px;
-    margin-bottom: 10px;
-}
-
-.metric-card {
-    padding: 16px;
-    border-radius: 16px;
-    color: white;
-    text-align: center;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.08);
-    min-height: 96px;
-}
-
-.metric-title {
-    font-size: 15px;
-    font-weight: 600;
-    margin-bottom: 6px;
-}
-
-.metric-value {
-    font-size: 20px;
-    font-weight: 800;
-}
-
-.metric-sub {
-    font-size: 12px;
-    opacity: 0.95;
-    margin-top: 4px;
-}
-
-.chart-box {
-    background: #ffffff;
-    padding: 12px;
-    border-radius: 16px;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.06);
-    border: 1px solid #e5e7eb;
-}
-
-.table-box {
-    background: #ffffff;
-    padding: 12px;
-    border-radius: 16px;
-    border: 1px solid #e5e7eb;
-    box-shadow: 0 6px 16px rgba(0,0,0,0.05);
-}
-
-.insight-box {
-    background: linear-gradient(135deg, #eef2ff, #f8fafc);
-    padding: 14px;
-    border-radius: 14px;
-    border-left: 5px solid #4f46e5;
-    color: #334155;
-    font-size: 14px;
-    line-height: 1.6;
-}
-
-.next-box {
-    margin-top: 14px;
-    padding: 18px;
-    border-radius: 18px;
-    background: linear-gradient(135deg, #eef2ff, #fdf2f8);
-    text-align: center;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+@media (max-width: 700px) {
+    .page-title {
+        font-size: 32px;
+    }
+    .page-hero {
+        padding: 2rem 1.4rem;
+    }
 }
 </style>
 """, unsafe_allow_html=True)
 
+# ---------------- LOAD RESULTS ----------------
 @st.cache_resource
 def get_results():
     return train_and_evaluate()
@@ -155,18 +318,22 @@ f1 = results["f1"]
 cm = results["confusion_matrix"]
 report = results["classification_report"]
 
+# ---------------- HERO ----------------
 st.markdown("""
-<div class="page-box">
+<div class="page-hero">
+    <div class="hero-badge">📊 Performance Evaluation</div>
     <div class="page-title">Model Performance</div>
     <div class="page-text">
-        This page presents the predictive performance of the deep learning model on the Adult Income dataset.
-        Along with accuracy, it also includes precision, recall, F1-score, confusion matrix, and classification results
-        to give a fuller picture of model quality before fairness evaluation.
+        This page presents how well the deep learning model performs on the Adult Income dataset.
+        It includes the key evaluation metrics, confusion matrix, classification report, and sample
+        predictions to understand model quality before checking fairness across gender groups.
     </div>
 </div>
 """, unsafe_allow_html=True)
 
+# ---------------- METRICS ----------------
 st.markdown('<div class="section-title">Performance Summary</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-subtitle">Core evaluation metrics that describe how effectively the model makes predictions.</div>', unsafe_allow_html=True)
 
 m1, m2, m3, m4 = st.columns(4)
 
@@ -175,7 +342,7 @@ with m1:
     <div class="metric-card" style="background: linear-gradient(135deg, #3b82f6, #2563eb);">
         <div class="metric-title">Accuracy</div>
         <div class="metric-value">{accuracy:.4f}</div>
-        <div class="metric-sub">Overall correctness</div>
+        <div class="metric-sub">Measures the overall correctness of predictions.</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -184,7 +351,7 @@ with m2:
     <div class="metric-card" style="background: linear-gradient(135deg, #10b981, #059669);">
         <div class="metric-title">Precision</div>
         <div class="metric-value">{precision:.4f}</div>
-        <div class="metric-sub">Positive prediction quality</div>
+        <div class="metric-sub">Shows how reliable the positive predictions are.</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -193,7 +360,7 @@ with m3:
     <div class="metric-card" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
         <div class="metric-title">Recall</div>
         <div class="metric-value">{recall:.4f}</div>
-        <div class="metric-sub">Positive class coverage</div>
+        <div class="metric-sub">Indicates how much of the positive class is captured.</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -202,28 +369,35 @@ with m4:
     <div class="metric-card" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
         <div class="metric-title">F1-Score</div>
         <div class="metric-value">{f1:.4f}</div>
-        <div class="metric-sub">Balanced performance</div>
+        <div class="metric-sub">Balances precision and recall into one score.</div>
     </div>
     """, unsafe_allow_html=True)
 
+# ---------------- MATRIX + REPORT ----------------
 mid1, mid2 = st.columns([1.05, 1])
 
 with mid1:
     st.markdown('<div class="section-title">Confusion Matrix</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-subtitle">A visual comparison of actual and predicted classes.</div>', unsafe_allow_html=True)
     st.markdown('<div class="chart-box">', unsafe_allow_html=True)
 
-    fig, ax = plt.subplots(figsize=(5.2, 4.0))
+    fig, ax = plt.subplots(figsize=(5.4, 4.3))
     im = ax.imshow(cm, cmap="Blues")
 
     ax.set_xticks([0, 1])
     ax.set_yticks([0, 1])
-    ax.set_xticklabels(["Pred 0", "Pred 1"])
-    ax.set_yticklabels(["Actual 0", "Actual 1"])
-    ax.set_title("Confusion Matrix", fontsize=13, fontweight="bold")
+    ax.set_xticklabels(["Predicted ≤50K", "Predicted >50K"], fontsize=10)
+    ax.set_yticklabels(["Actual ≤50K", "Actual >50K"], fontsize=10)
+    ax.set_title("Confusion Matrix", fontsize=14, fontweight="bold", pad=12)
 
     for i in range(cm.shape[0]):
         for j in range(cm.shape[1]):
-            ax.text(j, i, str(cm[i, j]), ha="center", va="center", fontsize=12, fontweight="bold")
+            ax.text(
+                j, i, str(cm[i, j]),
+                ha="center", va="center",
+                fontsize=13, fontweight="bold",
+                color="black"
+            )
 
     plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
     st.pyplot(fig)
@@ -231,15 +405,17 @@ with mid1:
 
 with mid2:
     st.markdown('<div class="section-title">Classification Report</div>', unsafe_allow_html=True)
+    st.markdown('<div class="section-subtitle">Detailed class-wise evaluation scores for the trained model.</div>', unsafe_allow_html=True)
 
-    report_df = pd.DataFrame(report).transpose()
-    report_df = report_df.round(4)
+    report_df = pd.DataFrame(report).transpose().round(4)
 
     st.markdown('<div class="table-box">', unsafe_allow_html=True)
-    st.dataframe(report_df, use_container_width=True, height=320)
+    st.dataframe(report_df, use_container_width=True, height=340)
     st.markdown('</div>', unsafe_allow_html=True)
 
+# ---------------- SAMPLE PREDICTIONS ----------------
 st.markdown('<div class="section-title">Sample Predictions</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-subtitle">A quick preview of actual and predicted outcomes from the test set.</div>', unsafe_allow_html=True)
 
 sample_count = 8
 actual_values = y_test[:sample_count].values if hasattr(y_test, "values") else y_test[:sample_count]
@@ -250,27 +426,33 @@ sample_df = pd.DataFrame({
 })
 
 st.markdown('<div class="table-box">', unsafe_allow_html=True)
-st.dataframe(sample_df, use_container_width=True, height=220)
+st.dataframe(sample_df, use_container_width=True, height=240)
 st.markdown('</div>', unsafe_allow_html=True)
 
+# ---------------- INSIGHT ----------------
 st.markdown("""
 <div class="insight-box">
-<b>Insight:</b> The model shows its predictive capability through accuracy, precision, recall, and F1-score.
-However, strong performance alone does not guarantee fairness. A model can still perform well overall while producing
-unequal outcomes for different gender groups. The next page will examine whether such bias exists.
+<b>Insight:</b> The model demonstrates good predictive capability through accuracy, precision, recall, and F1-score.
+Still, strong performance alone does not confirm fairness. A model can perform well overall and yet produce unequal
+outcomes across different gender groups. That is why the next stage focuses on fairness analysis.
 </div>
 """, unsafe_allow_html=True)
 
+# ---------------- NEXT SECTION ----------------
 st.markdown("""
 <div class="next-box">
-    <h3 style="color:#1e3a8a; margin-bottom:8px;">Proceed to Fairness Analysis</h3>
-    <p style="color:#475569; font-size:16px; margin-bottom:0;">
-        Move to the next page to compare outcomes across gender groups using fairness metrics.
-    </p>
+    <div class="next-title">Ready for Fairness Analysis?</div>
+    <div class="next-text">
+        Continue to the next page to compare outcomes across gender groups using fairness metrics
+        and identify whether any bias exists in the model.
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
-nav1, nav2, nav3 = st.columns([1.5, 2, 1.5])
+# ---------------- NAVIGATION ----------------
+st.markdown("<br>", unsafe_allow_html=True)
+
+nav1, nav2, nav3 = st.columns([1.4, 2, 1.4])
 
 with nav1:
     st.page_link("pages/1_Dataset_Overview.py", label="← Back", use_container_width=True)
